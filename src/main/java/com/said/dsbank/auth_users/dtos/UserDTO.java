@@ -3,7 +3,6 @@ package com.said.dsbank.auth_users.dtos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.said.dsbank.acount.entity.Account;
 import com.said.dsbank.role.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
