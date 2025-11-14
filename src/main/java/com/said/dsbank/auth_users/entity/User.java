@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -40,9 +41,9 @@ public class User {
             )
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Account> accounts = new ArrayList<>();
 
-    private List<Account> accounts;
 
     private LocalDateTime creatAt = LocalDateTime.now();
     private LocalDateTime updateAt = LocalDateTime.now();

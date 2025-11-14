@@ -3,12 +3,13 @@ package com.said.dsbank.auth_users.dtos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.said.dsbank.acount.dtos.AccountDTO;
 import com.said.dsbank.role.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.mapping.List;
+import java.util.List;
 
 import java.time.LocalDateTime;
 

@@ -1,6 +1,5 @@
 package com.said.dsbank.auth_users.dtos;
 
-import com.sun.tools.javac.util.List;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

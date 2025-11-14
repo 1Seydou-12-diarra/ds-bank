@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 
@@ -15,9 +16,10 @@ public class AppConfig {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setPrefix("templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("UTF-8");
-         return  templateEngine;
+        templateResolver.setTemplateMode(TemplateMode.HTML); // ✅ Correct
+        templateResolver.setCharacterEncoding("UTF-8"); // ✅ Encodage correct
+
+        return  templateEngine;
         }
     @Bean
     public ModelMapper modelMapper() {

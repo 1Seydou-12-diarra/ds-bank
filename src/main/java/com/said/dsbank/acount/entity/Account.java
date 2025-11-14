@@ -4,8 +4,9 @@ import com.said.dsbank.auth_users.entity.User;
 import com.said.dsbank.enums.AccountStatus;
 import com.said.dsbank.enums.AccountType;
 import com.said.dsbank.enums.Currency;
+import com.said.dsbank.transaction.entity.Transaction;
 import jakarta.persistence.*;
-import jakarta.transaction.Transaction;
+import com.said.dsbank.acount.entity.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,9 +36,12 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountType accountType;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id",nullable =false)
-    private User users;
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
 
     @Enumerated(EnumType.STRING)
@@ -48,8 +52,9 @@ public class Account {
     @Column(nullable = false)
     private AccountStatus accountStatus;
 
-    @OneToOne(mappedBy ="account",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY )
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Transaction> transactions = new ArrayList<>();
+
 
     private LocalDateTime closedAt;
     private LocalDateTime createdAt = LocalDateTime.now();
