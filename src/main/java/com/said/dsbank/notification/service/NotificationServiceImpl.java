@@ -1,7 +1,9 @@
 package com.said.dsbank.notification.service;
 
 import com.said.dsbank.auth_users.entity.User;
+import com.said.dsbank.enums.NotificationType;
 import com.said.dsbank.notification.dtos.NotificationDTO;
+import com.said.dsbank.notification.entity.Notification;
 import com.said.dsbank.notification.repo.NotificationRepo;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -52,9 +54,22 @@ public class NotificationServiceImpl implements NotificationService {
 
             }else {
                 helper.setText(notificationDTO.getBody(), true);
+
             }
+            mailSender.send(mimeMessage);
+            log.info("email send out");
+
+            //save
+            // Notification notificationToSave = Notification.builder()
+                   // .recipient(notificationDTO.getRecipient())
+                   // .subject(notificationDTO.getSubject())
+                        //.body(notificationDTO.getBody())
+                   // .type(NotificationType.EMAIL)
+                   // .user(user)
+                   // .build();   // ✔️ Correct
 
 
+            //notificationRepo.save(notificationToSave);
 
 
         }catch (MessagingException e){
