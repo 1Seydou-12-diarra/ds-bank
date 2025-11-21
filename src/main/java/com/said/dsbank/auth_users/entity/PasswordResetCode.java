@@ -2,9 +2,11 @@ package com.said.dsbank.auth_users.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.ConnectionBuilder;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PasswordResetCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,26 +5,24 @@ import com.said.dsbank.role.entity.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-
 @Table(name ="users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder(toBuilder = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String  lastName;
+    private Long id;
     private String  firstName;
+    private String  lastName;
 
     @Email
     @Column(unique = true,nullable = false)
@@ -33,7 +31,7 @@ public class User {
     private String  password;
     private String  profilePictureUrl;
     private boolean active = true;
-
+    private String phoneNumber;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="users_roles",
             joinColumns =@JoinColumn(name="user_id"),
