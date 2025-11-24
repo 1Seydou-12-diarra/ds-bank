@@ -95,7 +95,6 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepo.save(user);
 
-
         Account saveAccount = accountService.createAccount(AccountType.SAVINGS, savedUser);
 
 
@@ -250,10 +249,6 @@ public class AuthServiceImpl implements AuthService {
 
 
     }
-
-
-
-
     private LocalDateTime calculateExpiryDate() {
         return LocalDateTime.now().plusHours(5);
     }

@@ -46,17 +46,18 @@ public class AccountServiceImpl  implements AccountService {
         String accountNumber = generateAccountNumber();
 
         Account account = Account.builder()
-                .accountNumber(UUID.randomUUID().toString().substring(0, 15))
+                .accountNumber(accountNumber)  // 👈 utiliser le bon numéro
                 .balance(BigDecimal.ZERO)
                 .currency(Currency.USD)
                 .accountStatus(AccountStatus.ACTIVE)
                 .user(user)
+                .accountType(accountType)
                 .build();
 
-        return accountRepo.save(account); // ✅ obligatoire
-
-
+        return accountRepo.save(account);
     }
+
+
 
     @Override
     public Response<List<AccountDTO>> getMyAccounts() {
@@ -106,29 +107,15 @@ public class AccountServiceImpl  implements AccountService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private String generateAccountNumber() {
-        String accountNumber = "";
+        String accountNumber;
+
         do {
-            accountNumber ="66" +(random.nextInt(90000000)+ 1000000000);
+            accountNumber = "66" + (10000000 + random.nextInt(90000000)); // 66 + 8 chiffres
+        } while (accountRepo.findByAccountNumber(accountNumber).isPresent());
 
-        } while (accountRepo.findByAccountNumber(accountNumber).isEmpty());
-
-        log.info("account number generated{}",accountNumber);
-         return  accountNumber;
+        log.info("Generated account number: {}", accountNumber);
+        return accountNumber;
     }
 
 
