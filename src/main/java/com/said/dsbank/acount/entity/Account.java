@@ -1,13 +1,14 @@
 package com.said.dsbank.acount.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.said.dsbank.auth_users.entity.User;
 import com.said.dsbank.enums.AccountStatus;
 import com.said.dsbank.enums.AccountType;
 import com.said.dsbank.enums.Currency;
 import com.said.dsbank.transaction.entity.Transaction;
 import jakarta.persistence.*;
-import com.said.dsbank.acount.entity.Account;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +42,9 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
+
 
 
 

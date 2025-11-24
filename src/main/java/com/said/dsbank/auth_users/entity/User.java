@@ -1,5 +1,7 @@
 package com.said.dsbank.auth_users.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.said.dsbank.acount.entity.Account;
 import com.said.dsbank.role.entity.Role;
 import jakarta.persistence.*;
@@ -40,6 +42,7 @@ public class User {
     private List<Role> roles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Account> accounts = new ArrayList<>();
 
 

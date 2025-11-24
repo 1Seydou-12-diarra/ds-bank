@@ -1,6 +1,8 @@
 package com.said.dsbank.auth_users.service.impl;
 
 import com.said.dsbank.acount.entity.Account;
+import com.said.dsbank.acount.repo.AccountRepo;
+import com.said.dsbank.acount.service.AccountService;
 import com.said.dsbank.auth_users.dtos.LoginReponse;
 import com.said.dsbank.auth_users.dtos.LoginRequest;
 import com.said.dsbank.auth_users.dtos.RegistrationRequest;
@@ -48,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final NotificationService notificationService;
+    private final AccountService accountService;
 
      private  final CodeGenerator codeGenerator;
      private final PasswordResetCodeRepo passwordResetCodeRepo;
@@ -58,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
+    @Transactional
     public Response<String> register(RegistrationRequest request) {
 
         // Vérifier le rôle
@@ -92,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepo.save(user);
 
 
-        //Account saveAccount = accountService.creatAccount(AccountType.SAVINGS, savedUser);
+        Account saveAccount = accountService.createAccount(AccountType.SAVINGS, savedUser);
 
 
         //SEND WELCOME EMAIL
@@ -111,24 +115,25 @@ public class AuthServiceImpl implements AuthService {
         //SEND ACCOUNT CREATION /DETAIL EMAIL
 
         Map<String,Object> accountVars = new HashMap<>();
-        accountVars.put("name",savedUser.getFirstName());
-       // accountVars.put("accountNumber", saveAccount.getAccountNumber());
-        accountVars.put("accountType ",AccountType.SAVINGS.name());
-        accountVars.put("currency", Currency.USD);
+        accountVars.put("name", savedUser.getFirstName());
+        accountVars.put("accountNumber", saveAccount.getAccountNumber());
+        accountVars.put("accountType", AccountType.SAVINGS.name());
+        accountVars.put("currency", Currency.USD.name());
 
-        NotificationDTO accountCreatedEmail =  NotificationDTO.builder()
+        NotificationDTO accountCreatedEmail = NotificationDTO.builder()
                 .recipient(savedUser.getEmail())
-                .subject("you new bank account  has bean created")
-                .templateName("account created")
+                .subject("Your new bank account has been created")
+                .templateName("account_created")
                 .templateVariables(accountVars)
                 .build();
 
-        notificationService.sendEmail(accountCreatedEmail ,savedUser);
+        notificationService.sendEmail(accountCreatedEmail, savedUser);
 
- return Response.<String>builder()
+
+        return Response.<String>builder()
         .statusCode(201)
         .message("User registered successfully")
-       // .data("Email of your account details has bean sent to you. your account number is " + saveAccount.getAccountNumber())
+        .data("Email of your account details has bean sent to you. your account number is " + saveAccount.getAccountNumber())
         .build();
 
     }
