@@ -22,14 +22,12 @@ import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,8 +62,6 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(TransactionStatus.SUCCESS);
         Transaction savedTxn = transactionRepo.save(transaction);
 
-
-
         //send notification out
         sendTransactionNotification(savedTxn);
 
@@ -87,10 +83,23 @@ public class TransactionServiceImpl implements TransactionService {
         if(!account.getUser().getId().equals(user.getId())) {
             throw new BadRequestException("Account does not belong to this account");
         }
-        //Pageable pageable = PageRequest.of(page,size,Sort.by("createdAt").descending());
-       // Page<Transaction> txns = transactionRepo.findByAccount_AccountNumber(accountNumber);
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by("transactionDate").descending());
+        Page<Transaction> txns = transactionRepo.findByAccount_AccountNumber(accountNumber,pageable);
+        List<TransactionDTO> transactionDTOS = txns.getContent().stream()
+                .map(transaction -> modelMapper.map(transaction,TransactionDTO.class))
+                .toList();
 
+        return Response.<List<TransactionDTO>>builder()
+                .statusCode(200)
+                .message("Transactions found")
+                .data(transactionDTOS)
+                .meta(Map.of("currentPage", txns.getNumber(),
+                                "totalItems",txns.getTotalElements(),
+                                 "totalPage", txns.getTotalPages(),
+                                 "pageSize", txns.getSize()))
+
+                .build();
     }
 
 
@@ -126,32 +135,31 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void handleTransfer(TransactionRequest request, Transaction transaction) {
 
-
         Account sourceAccount = accountRepo.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new NotFoundException("account not found"));
 
         Account destination = accountRepo.findByAccountNumber(request.getDestinationAccountNumber())
                 .orElseThrow(() -> new NotFoundException("Destination account not found"));
 
-        if (sourceAccount.getBalance().compareTo(destination.getBalance()) < 0) {
+        // Vérification du solde
+        if (sourceAccount.getBalance().compareTo(request.getAmount()) < 0) {
             throw new InsufficientBalanceException("Insufficient balance in source account");
-
         }
-        //DEDUCT FROM SOURCE
+
+        // Retirer du compte source
         sourceAccount.setBalance(sourceAccount.getBalance().subtract(request.getAmount()));
         accountRepo.save(sourceAccount);
 
-        //add to destination
-        destination.setBalance(destination.getBalance().subtract(request.getAmount()));
+        // Ajouter au compte destination
+        destination.setBalance(destination.getBalance().add(request.getAmount())); // CORRECTION
         accountRepo.save(destination);
 
         transaction.setAccount(sourceAccount);
         transaction.setSourceAccount(sourceAccount.getAccountNumber());
         transaction.setDestinationAccount(destination.getAccountNumber());
-
-
     }
-private void sendTransactionNotification(Transaction tnx) {
+
+    private void sendTransactionNotification(Transaction tnx) {
 
         User user = tnx.getAccount().getUser();
         String subject;
