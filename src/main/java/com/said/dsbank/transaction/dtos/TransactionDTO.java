@@ -3,6 +3,7 @@ package com.said.dsbank.transaction.dtos;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.said.dsbank.acount.dtos.AccountDTO;
 import com.said.dsbank.acount.entity.Account;
+import com.said.dsbank.card.VirtualCard;
 import com.said.dsbank.enums.TransactionStatus;
 import com.said.dsbank.enums.TransactionType;
 import jakarta.persistence.*;
@@ -23,6 +24,7 @@ public class TransactionDTO {
     private Long id;
 
     private BigDecimal amount;
+    private VirtualCard virtualCard;
 
 
     private TransactionType transactionType;

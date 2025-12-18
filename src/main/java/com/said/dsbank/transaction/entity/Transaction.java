@@ -1,6 +1,7 @@
 package com.said.dsbank.transaction.entity;
 
 import com.said.dsbank.acount.entity.Account;
+import com.said.dsbank.card.VirtualCard;
 import com.said.dsbank.enums.TransactionStatus;
 import com.said.dsbank.enums.TransactionType;
 import jakarta.persistence.*;
@@ -13,12 +14,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 
 @Table(name ="transaction")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +42,10 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="account_id",nullable = false)
     private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "virtual_card_id")
+    private VirtualCard virtualCard;
 
     //for transfer
     private String sourceAccount;

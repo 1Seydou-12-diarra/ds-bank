@@ -4,6 +4,8 @@ import com.said.dsbank.acount.entity.Account;
 import com.said.dsbank.acount.repo.AccountRepo;
 import com.said.dsbank.auth_users.entity.User;
 import com.said.dsbank.auth_users.service.UserService;
+import com.said.dsbank.card.VirtualCard;
+import com.said.dsbank.card.VirtualCardService;
 import com.said.dsbank.enums.TransactionStatus;
 import com.said.dsbank.enums.TransactionType;
 import com.said.dsbank.exceptions.BadRequestException;
@@ -25,6 +27,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import com.said.dsbank.enums.TransactionType;
+
+
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +45,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final NotificationService notificationService;
     private final UserService userService;
     private final ModelMapper modelMapper;
+    private  final VirtualCardService virtualCardService;
 
 
     @Override
@@ -158,6 +165,58 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setSourceAccount(sourceAccount.getAccountNumber());
         transaction.setDestinationAccount(destination.getAccountNumber());
     }
+
+
+
+    @Transactional
+    public Transaction payWithVirtualCard(Long id, BigDecimal amount, String description) {
+        // Récupérer la carte virtuelle par son ID
+        VirtualCard card = virtualCardService.findById(id)
+                .orElseThrow(() -> new NotFoundException("Carte virtuelle non trouvée"));
+
+        // Vérifier le statut de la carte
+        if (card.getStatus() == null || card.getStatus() != VirtualCard.Status.ACTIVE) {
+            throw new BadRequestException("Carte non active");
+        }
+
+        // Vérifier la limite de la carte
+        if (amount == null || card.getBalanceLimit() == null || amount.compareTo(card.getBalanceLimit()) > 0) {
+            throw new BadRequestException("Montant supérieur au plafond de la carte");
+        }
+
+        // Récupérer le compte associé à la carte
+        if (card.getAccountId() == null) {
+            throw new NotFoundException("La carte n'est associée à aucun compte");
+        }
+
+        Account account = accountRepo.findById(card.getAccountId())
+                .orElseThrow(() -> new NotFoundException("Compte non trouvé"));
+
+        // Vérifier le solde du compte
+        if (account.getBalance() == null || account.getBalance().compareTo(amount) < 0) {
+            throw new BadRequestException("Solde insuffisant sur le compte");
+        }
+
+        // Débiter le compte
+        account.setBalance(account.getBalance().subtract(amount));
+        accountRepo.save(account);
+
+        // Créer la transaction
+        Transaction tx = Transaction.builder()
+                .amount(amount)
+                .description(description)
+                .account(account)
+                .virtualCard(card)
+                .transactionType(TransactionType.WITHDRAWAL)
+                .build();
+
+        // Sauvegarder et retourner la transaction
+        return transactionRepo.save(tx);
+    }
+
+
+
+
 
     private void sendTransactionNotification(Transaction tnx) {
 
